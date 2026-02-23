@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /c/Users/kumar/Desktop/sabai/codershive/seafood && npm run build 2>&1)",
+      "Bash(tail:*)",
+      "Bash(cd /c/Users/kumar/Desktop/sabai/codershive/seafood && ./node_modules/.bin/next build 2>&1)"
+    ]
+  }
+}
