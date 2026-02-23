@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateAdminToken, ADMIN_COOKIE } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
-  const { password } = await req.json();
+  const { username, password } = await req.json();
 
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Invalid password" }, { status: 401 });
+  const validUsername = process.env.ADMIN_USERNAME;
+  const validPassword = process.env.ADMIN_PASSWORD;
+
+  if (
+    !username || !password ||
+    username !== validUsername ||
+    password !== validPassword
+  ) {
+    return NextResponse.json({ error: "Invalid username or password" }, { status: 401 });
   }
 
   const token = generateAdminToken();

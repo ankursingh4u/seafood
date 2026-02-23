@@ -11,7 +11,7 @@ export async function sendOrderEmail(order: Order): Promise<void> {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   const itemsList = order.items
-    .map((i) => `<li>${i.name} × ${i.qty} — ₹${i.price * i.qty}</li>`)
+    .map((i) => `<li>${i.name} × ${i.qty} — $${i.price * i.qty}</li>`)
     .join("");
 
   await resend.emails.send({
@@ -24,7 +24,7 @@ export async function sendOrderEmail(order: Order): Promise<void> {
       <p><strong>Customer:</strong> ${order.customer_name}</p>
       <p><strong>Phone:</strong> ${order.phone}</p>
       ${order.notes ? `<p><strong>Notes:</strong> ${order.notes}</p>` : ""}
-      <p><strong>Total:</strong> ₹${order.total}</p>
+      <p><strong>Total:</strong> $${order.total}</p>
       <h3>Items:</h3>
       <ul>${itemsList}</ul>
       <p>Go to <a href="/admin">/admin</a> to manage this order.</p>

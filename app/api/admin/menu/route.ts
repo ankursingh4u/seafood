@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { name, image_url, price } = await req.json();
+  const { name, image_url, price, category } = await req.json();
 
   if (!name?.trim() || !image_url?.trim() || price == null || isNaN(Number(price))) {
     return NextResponse.json({ error: "Required: name, image_url, price" }, { status: 400 });
@@ -33,7 +33,13 @@ export async function POST(req: NextRequest) {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("menu_items")
-    .insert({ name: name.trim(), image_url: image_url.trim(), price: Number(price), active: true })
+    .insert({
+      name: name.trim(),
+      image_url: image_url.trim(),
+      price: Number(price),
+      active: true,
+      category: category?.trim() || null,
+    })
     .select()
     .single();
 

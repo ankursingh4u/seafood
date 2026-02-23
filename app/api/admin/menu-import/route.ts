@@ -34,7 +34,13 @@ export async function POST(req: NextRequest) {
   const { data: upserted, error: upsertError } = await supabase
     .from("menu_items")
     .upsert(
-      rows.map((r) => ({ name: r.name, image_url: r.image_url, price: r.price, active: true })),
+      rows.map((r) => ({
+        name: r.name,
+        image_url: r.image_url,
+        price: r.price,
+        active: true,
+        ...(r.category ? { category: r.category } : {}),
+      })),
       { onConflict: "name" }
     )
     .select();

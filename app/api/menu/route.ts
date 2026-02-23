@@ -8,7 +8,7 @@ export async function GET() {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("menu_items")
-    .select("id, name, image_url, price, active, created_at")
+    .select("id, name, image_url, price, active, created_at, category")
     .eq("active", true)
     .order("created_at", { ascending: true });
 

@@ -5,6 +5,7 @@ export interface MenuItem {
   price: number;
   active: boolean;
   created_at: string;
+  category?: string;
 }
 
 export interface CartItem {

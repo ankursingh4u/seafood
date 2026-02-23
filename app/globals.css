@@ -24,3 +24,53 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── Hero slider animations ─────────────────────────────────── */
+
+@keyframes kenBurns {
+  0%   { transform: scale(1)    translate(0, 0); }
+  100% { transform: scale(1.12) translate(-2%, -1%); }
+}
+
+@keyframes kenBurnsAlt {
+  0%   { transform: scale(1)    translate(0, 0); }
+  100% { transform: scale(1.1)  translate(2%, -1.5%); }
+}
+
+@keyframes slideTextIn {
+  0%   { opacity: 0; transform: translateY(28px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes progressBar {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+@keyframes fadeInLeft {
+  0%   { opacity: 0; transform: translateX(-16px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* Hover zoom — used in server components to avoid Tailwind SSR/CSR style mismatch */
+.hover-zoom {
+  transition: transform 0.7s ease;
+}
+.group:hover .hover-zoom {
+  transform: scale(1.05);
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-3px); }
+}
+
+@keyframes logoGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(245,158,11,0.15), 0 2px 8px rgba(0,0,0,0.3); }
+  50%       { box-shadow: 0 0 20px rgba(245,158,11,0.32), 0 2px 8px rgba(0,0,0,0.3); }
+}
