@@ -1,36 +1,145 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Saltys Seafood & Takeaway
+
+Web-based seafood pickup ordering app. No customer login. Fast ordering. Owner never misses an order.
+
+## Tech Stack
+
+- Next.js 15 (App Router)
+- TypeScript
+- Tailwind CSS
+- Supabase / PostgreSQL
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
+cp .env.example .env.local
+# Fill in your .env.local values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Team Split
 
-## Learn More
+| Dev   | Responsibility              |
+|-------|-----------------------------|
+| Dev A | Customer frontend (pages)   |
+| Dev B | Backend + Orders API + DB   |
+| Dev C | Admin panel + Menu import   |
 
-To learn more about Next.js, take a look at the following resources:
+**Shared contract = API spec + DB schemas. Do not change locked contracts.**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API Contracts (LOCKED)
 
-## Deploy on Vercel
+### `GET /api/menu`
+Returns active menu items.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Response:**
+```json
+[
+  {
+    "id": "uuid",
+    "name": "Fish Fry",
+    "image_url": "https://...",
+    "price": 250,
+    "active": true,
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+### `POST /api/orders`
+Place a new pickup order.
+
+**Request:**
+```json
+{
+  "items": [
+    { "dish_id": "uuid", "name": "Fish Fry", "price": 250, "qty": 2 }
+  ],
+  "customer_name": "John",
+  "phone": "9999999999",
+  "notes": "Extra spicy"
+}
+```
+
+**Response:**
+```json
+{ "order_id": "uuid" }
+```
+
+---
+
+### `POST /api/admin/menu-import`
+Upload CSV to update the menu.
+
+**CSV Format:**
+```
+name,image_url,price
+Fish Fry,https://img.com/fish.jpg,250
+Prawn Curry,https://img.com/prawn.jpg,320
+```
+
+---
+
+## Database Schemas (LOCKED)
+
+### `menu_items`
+| Column     | Type      |
+|------------|-----------|
+| id         | uuid (PK) |
+| name       | string    |
+| image_url  | string    |
+| price      | number    |
+| active     | boolean   |
+| created_at | timestamp |
+
+### `orders`
+| Column        | Type                            |
+|---------------|---------------------------------|
+| id            | uuid (PK)                       |
+| items         | json                            |
+| total         | number                          |
+| customer_name | string                          |
+| phone         | string                          |
+| status        | PENDING \| PREPARING \| READY   |
+| created_at    | timestamp                       |
+
+---
+
+## Cart LocalStorage Format (LOCKED)
+
+```json
+{
+  "cart": [
+    {
+      "dish_id": "string",
+      "name": "string",
+      "price": 0,
+      "qty": 0
+    }
+  ]
+}
+```
+
+---
+
+## How to Import Menu
+
+1. Go to `/admin`
+2. Log in with admin password
+3. Upload a CSV with format: `name,image_url,price`
+4. Click Import — dishes will be upserted, missing ones deactivated
+
+---
+
+## Admin URL
+
+`/admin`
