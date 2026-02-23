@@ -143,3 +143,4 @@ Prawn Curry,https://img.com/prawn.jpg,320
 ## Admin URL
 
 `/admin`
+"# seafood" 
