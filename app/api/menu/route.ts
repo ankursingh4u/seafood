@@ -1,14 +1,21 @@
 // GET /api/menu
 // Returns active menu items only.
-// Implemented by: Dev B
 
 import { NextResponse } from "next/server";
+import { getSupabase } from "@/lib/db";
 
 export async function GET() {
-  // TODO (Dev B): Query DB for active menu items
-  // Example:
-  // const items = await db.query("SELECT * FROM menu_items WHERE active = true");
-  // return NextResponse.json(items);
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from("menu_items")
+    .select("id, name, image_url, price, active, created_at")
+    .eq("active", true)
+    .order("created_at", { ascending: true });
 
-  return NextResponse.json({ message: "Menu API — not yet implemented" }, { status: 501 });
+  if (error) {
+    console.error("[GET /api/menu]", error.message);
+    return NextResponse.json({ error: "Failed to fetch menu" }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
 }

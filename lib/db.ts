@@ -1,11 +1,18 @@
-// DB client — configured by Dev B
-// Connect your Supabase / PostgreSQL instance here
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-// Example with Supabase:
-// import { createClient } from "@supabase/supabase-js";
-// export const supabase = createClient(
-//   process.env.SUPABASE_URL!,
-//   process.env.SUPABASE_SERVICE_KEY!
-// );
+let _client: SupabaseClient | null = null;
 
-export {};
+// Lazily initialized so build-time static analysis doesn't fail without env vars.
+export function getSupabase(): SupabaseClient {
+  if (_client) return _client;
+
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+
+  if (!url || !key) {
+    throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_KEY in environment variables.");
+  }
+
+  _client = createClient(url, key);
+  return _client;
+}

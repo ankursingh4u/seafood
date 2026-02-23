@@ -6,6 +6,7 @@ export interface Order {
   total: number;
   customer_name: string;
   phone: string;
+  notes?: string | null;
   status: OrderStatus;
   created_at: string;
 }
