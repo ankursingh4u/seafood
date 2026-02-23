@@ -1,20 +1,60 @@
-// POST /api/admin/menu-import
-// Accepts CSV upload and upserts menu items.
-// Implemented by: Dev C
-//
-// CSV Format (strict):
-// name,image_url,price
-// Fish Fry,https://img.com/fish.jpg,250
-//
-// Rules:
-//  - First row = headers
-//  - Parse and upsert items
-//  - Disable items not present in CSV
-//  - Return import report
-
 import { NextRequest, NextResponse } from "next/server";
+import { verifyAdminRequest } from "@/lib/auth";
+import { getSupabase } from "@/lib/db";
+import { parseCsv } from "@/lib/csv";
 
 export async function POST(req: NextRequest) {
-  // TODO (Dev C): Implement CSV menu import
-  return NextResponse.json({ message: "Menu import API — not yet implemented" }, { status: 501 });
+  if (!verifyAdminRequest(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const formData = await req.formData();
+  const file = formData.get("file") as File | null;
+
+  if (!file) {
+    return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+  }
+
+  const csvText = await file.text();
+  let rows;
+
+  try {
+    rows = parseCsv(csvText);
+  } catch {
+    return NextResponse.json({ error: "Invalid CSV format" }, { status: 422 });
+  }
+
+  if (!rows.length) {
+    return NextResponse.json({ error: "CSV has no data rows" }, { status: 422 });
+  }
+
+  const supabase = getSupabase();
+
+  // Upsert items from CSV (insert new, update existing by name)
+  const { data: upserted, error: upsertError } = await supabase
+    .from("menu_items")
+    .upsert(
+      rows.map((r) => ({ name: r.name, image_url: r.image_url, price: r.price, active: true })),
+      { onConflict: "name" }
+    )
+    .select();
+
+  if (upsertError) {
+    return NextResponse.json({ error: upsertError.message }, { status: 500 });
+  }
+
+  // Deactivate items NOT present in the CSV
+  const { data: allItems } = await supabase.from("menu_items").select("id, name");
+  const csvNames = new Set(rows.map((r) => r.name));
+  const toDeactivate = (allItems ?? []).filter((i) => !csvNames.has(i.name)).map((i) => i.id);
+
+  if (toDeactivate.length > 0) {
+    await supabase.from("menu_items").update({ active: false }).in("id", toDeactivate);
+  }
+
+  return NextResponse.json({
+    imported: upserted?.length ?? 0,
+    deactivated: toDeactivate.length,
+    items: upserted,
+  });
 }

@@ -6,7 +6,7 @@
 -- ─────────────────────────────────────────────
 create table if not exists menu_items (
   id          uuid primary key default gen_random_uuid(),
-  name        text not null,
+  name        text not null unique,
   image_url   text not null,
   price       numeric(10, 2) not null check (price >= 0),
   active      boolean not null default true,
